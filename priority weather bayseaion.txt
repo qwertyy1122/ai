@@ -1,0 +1,34 @@
+% Prior probabilities for weather conditions
+prior(rain, 0.5).
+prior(no_rain, 0.2).
+likelihood(cloudy, rain, 0.8).
+likelihood(cloudy, no_rain, 0.3).
+
+% evidence probability
+evidence(Evidence, PE) :-
+    findall(Val,
+        (
+            prior(Hypothesis, PH),
+            likelihood(Evidence, Hypothesis, PELH),
+            Val is PH * PELH
+        ),
+        List),
+    sum_list(List, PE).
+
+% bayes theorem
+posterior(Hypothesis, Evidence, Posterior) :-
+    prior(Hypothesis, PH),
+    likelihood(Evidence, Hypothesis, PELH),
+    evidence(Evidence, PE),
+    PE > 0,
+    Posterior is (PELH * PH) / PE.
+
+
+
+
+
+% Input Query: posterior(rain, cloudy, P).
+% Open 👉 https://swish.swi-prolog.org/
+% Paste your code
+% Click Run ▶️
+% Enter query in bottom box

@@ -1,0 +1,113 @@
+
+# Packet Routing using DFS and BFS
+
+from collections import deque
+
+MAX = 7
+
+# Adjacency Matrix
+graph = [
+    [0, 1, 0, 1, 0, 0, 0],
+    [0, 0, 1, 0, 0, 1, 0],
+    [0, 0, 0, 0, 1, 0, 1],
+    [0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 1, 0],
+    [1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 0, 0]
+]
+
+nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+
+# Get index from node name
+def get_index(c):
+    return nodes.index(c)
+
+# Print path using parent array
+def print_path(parent, start, goal):
+    path = []
+    curr = goal
+
+    while curr != -1:
+        path.append(curr)
+        if curr == start:
+            break
+        curr = parent[curr]
+
+    path.reverse()
+    print("\nFinal Path:", end=" ")
+    for i in range(len(path)):
+        print(nodes[path[i]], end="")
+        if i < len(path) - 1:
+            print(" -> ", end="")
+    print("\n")
+
+# ---------------- DFS ----------------
+def DFS(start_node, goal_node):
+    visited = [0] * MAX
+    parent = [-1] * MAX
+
+    start = get_index(start_node)
+    goal = get_index(goal_node)
+
+    stack = []
+    stack.append(start)
+
+    print("DFS Traversal:")
+
+    while stack:
+        current = stack.pop()
+
+        if visited[current]:
+            continue
+
+        visited[current] = 1
+        print("Visited Node:", nodes[current])
+
+        if current == goal:
+            print("Goal Found!")
+            print_path(parent, start, goal)
+            return
+
+        for i in range(MAX - 1, -1, -1):
+            if graph[current][i] == 1 and not visited[i]:
+                stack.append(i)
+                if parent[i] == -1:
+                    parent[i] = current
+
+# ---------------- BFS ----------------
+def BFS(start_node, goal_node):
+    visited = [0] * MAX
+    parent = [-1] * MAX
+
+    start = get_index(start_node)
+    goal = get_index(goal_node)
+
+    queue = deque()
+    queue.append(start)
+    visited[start] = 1
+
+    print("BFS Traversal:")
+
+    while queue:
+        current = queue.popleft()
+        print("Visited Node:", nodes[current])
+
+        if current == goal:
+            print("Goal Found!")
+            print_path(parent, start, goal)
+            return
+
+        for i in range(MAX):
+            if graph[current][i] == 1 and not visited[i]:
+                queue.append(i)
+                visited[i] = 1
+                parent[i] = current
+
+# ---------------- Main ----------------
+if __name__ == "__main__":
+    start = 'A'
+    goal = 'G'
+
+    DFS(start, goal)
+    print("\n------------------------\n")
+    BFS(start, goal)

@@ -1,0 +1,113 @@
+import heapq  # Used to create a priority queue (min-heap)
+
+# 🎯 Goal state of puzzle
+goal = [[1,2,3],[4,5,6],[7,8,0]]
+
+# 🔄 Possible moves: Up, Down, Left, Right
+moves = [(-1,0),(1,0),(0,-1),(0,1)]
+
+# 🔍 Find position of blank tile (0)
+def find_zero(s):
+    for i in range(3):
+        for j in range(3):
+            if s[i][j] == 0:
+                return i, j  # return row, column
+
+# 📏 Heuristic function (Manhattan Distance)
+# Calculates how far each tile is from its correct position
+def heuristic(s):
+    return sum(
+        abs(i - (v-1)//3) + abs(j - (v-1)%3)  # distance formula
+        for i in range(3) for j in range(3)
+        if (v := s[i][j]) != 0  # ignore blank tile
+    )
+
+# 🔁 Convert list to tuple (so we can store in set)
+def to_tuple(s):
+    return tuple(map(tuple, s))
+
+# ⭐ A* Search Algorithm
+def a_star(start):
+
+    # Priority queue: (f, g, state, path)
+    # f = total cost, g = steps taken so far
+    pq = [(heuristic(start), 0, start, [])]
+
+    visited = set()  # to avoid revisiting states
+
+    while pq:
+        f, g, state, path = heapq.heappop(pq)  
+        # Get state with lowest cost
+
+        # ✅ If goal reached → return solution
+        if state == goal:
+            return path + [state]
+
+        # 🔁 Skip already visited states
+        t = to_tuple(state)
+        if t in visited:
+            continue
+        visited.add(t)
+
+        # 📍 Find blank position
+        x, y = find_zero(state)
+
+        # 🔄 Try all possible moves
+        for dx, dy in moves:
+            nx, ny = x + dx, y + dy
+
+            # ✅ Check boundaries
+            if 0 <= nx < 3 and 0 <= ny < 3:
+
+                # 🔁 Create new state (copy old one)
+                new = [r[:] for r in state]
+
+                # 🔄 Swap blank with adjacent tile
+                new[x][y], new[nx][ny] = new[nx][ny], new[x][y]
+
+                # ➕ Add new state to priority queue
+                heapq.heappush(
+                    pq,
+                    (
+                        g + 1 + heuristic(new),  # f = g + h
+                        g + 1,                  # new step count
+                        new,                    # new state
+                        path + [state]          # update path
+                    )
+                )
+
+    return None  # No solution found
+
+# 🖨️ Print all steps of solution
+def print_solution(sol):
+    for i, s in enumerate(sol):
+        print(f"\nStep {i}:")
+        for r in s:
+            print(r)
+
+# ⌨️ Take user input
+def get_input():
+    print("Enter puzzle (0 = blank):")
+
+    # Take 3 rows input
+    s = [list(map(int, input(f"Row {i+1}: ").split())) for i in range(3)]
+
+    # ✅ Validate input (must contain 0–8 exactly once)
+    flat = [num for row in s for num in row]
+    if sorted(flat) != list(range(9)):
+        raise ValueError("Enter numbers 0–8 exactly once")
+
+    return s
+
+# 🚀 Main execution starts here
+if __name__ == "__main__":
+
+    start = get_input()      # take puzzle input
+    sol = a_star(start)      # solve using A*
+
+    if sol:
+        print("\nSolution Found!")
+        print_solution(sol)
+        print("\nTotal Moves:", len(sol) - 1)
+    else:
+        print("No Solution Found!")

@@ -1,0 +1,34 @@
+% Medical Diagnosis using Forward Chaining
+
+% Facts (Symptoms)
+symptom(fever).
+symptom(cough).
+symptom(headache).
+
+% Rules (Knowledge Base)
+disease(flu) :-
+    symptom(fever),
+    symptom(cough),
+    symptom(headache).
+
+disease(cold) :-
+    symptom(cough),
+    symptom(headache).
+
+disease(malaria) :-
+    symptom(fever),
+    symptom(headache).
+
+% Forward chaining rule (diagnosis)
+diagnose :-
+    disease(D),
+    write('Possible Disease: '), write(D), nl,
+    fail.
+
+diagnose.
+
+% Input Query: diagnose.
+% Open 👉 https://swish.swi-prolog.org/
+% Paste your code
+% Click Run ▶️
+% Enter query in bottom box

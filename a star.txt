@@ -1,0 +1,76 @@
+import heapq  # used for priority queue (min-heap)
+
+# 📊 Graph: each node → list of (neighbor, cost)
+graph = {
+    'S':[('A',4),('B',10),('C',11)],
+    'A':[('B',8),('D',5)],
+    'B':[('D',15)],
+    'C':[('D',8),('F',2),('E',20)],
+    'D':[('F',1),('I',20),('H',16)],
+    'E':[('G',19)],
+    'F':[('G',13)],
+    'H':[('I',1),('J',2)],
+    'I':[('J',5),('K',13),('G',5)],
+    'J':[('K',7)],
+    'K':[('G',16)],
+    'G':[]
+}
+
+# 🧠 Heuristic values (estimated distance to goal)
+h = {'S':7,'A':8,'B':6,'C':5,'D':5,'E':3,'F':3,'G':0,'H':7,'I':4,'J':5,'K':3}
+
+# ⭐ A* Algorithm
+def astar(start, goal):
+
+    # Priority Queue stores: (f = g+h, g = cost so far, current node, path)
+    pq = [(h[start], 0, start, [start])]
+
+    visited = set()  # to avoid revisiting nodes
+
+    print("A* Traversal:")
+
+    while pq:
+        # 🔽 Get node with smallest f value
+        f, g, node, path = heapq.heappop(pq)
+
+        # 📌 Show current node details
+        print(f"Visiting Node: {node} | g={g}, h={h[node]}, f={f}")
+
+        # 🎯 Goal check
+        if node == goal:
+            print("\nGoal Found!")
+            return path, g  # return path and total cost
+
+        # 🚫 Skip if already visited
+        if node in visited:
+            continue
+        visited.add(node)
+
+        # 🔄 Explore neighbors
+        for nei, cost in graph[node]:
+
+            if nei not in visited:
+                new_g = g + cost          # update path cost
+                new_f = new_g + h[nei]    # f = g + h
+
+                # ➕ Push new state into priority queue
+                heapq.heappush(
+                    pq,
+                    (new_f, new_g, nei, path + [nei])
+                )
+
+    return None, float('inf')  # if no path found
+
+# -------- MAIN PROGRAM --------
+if __name__ == "__main__":
+
+    # ⌨️ User input
+    start = input("Enter Start Node: ").strip().upper()
+    goal = input("Enter Goal Node: ").strip().upper()
+
+    # 🚀 Run A*
+    path, cost = astar(start, goal)
+
+    # 🖨️ Print result
+    print("\nOptimal Path:", " -> ".join(path))
+    print("Total Cost:", cost)
